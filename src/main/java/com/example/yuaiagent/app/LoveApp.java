@@ -1,5 +1,7 @@
 package com.example.yuaiagent.app;
 
+import com.example.yuaiagent.advisor.MyLoggerAdvisor;
+import com.example.yuaiagent.chatMemory.FileBasedChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -8,6 +10,8 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @Slf4j
@@ -28,8 +32,12 @@ public class LoveApp {
      * @param dashscopeChatModel
      */
     public LoveApp(ChatModel dashscopeChatModel) {
-        // 创建 ChatMemory，用于存储对话历史
-        ChatMemory chatMemory = MessageWindowChatMemory.builder().build();
+        // 基于本地文件创建 ChatMemory
+        String dir = System.getProperty("user.dir") + "/tmp/chat_memory";
+        ChatMemory chatMemory = new FileBasedChatMemory(dir);
+
+        // 创建 ChatMemory，用于存储对话历史，基于内存实现
+//        ChatMemory chatMemory = MessageWindowChatMemory.builder().build();
 
         // 初始化client 传入系统提示词并添加 ChatMemory
         chatClient = ChatClient.builder(dashscopeChatModel)
@@ -37,11 +45,13 @@ public class LoveApp {
                 .defaultAdvisors(MessageChatMemoryAdvisor
                         .builder(chatMemory)
                         .build())
+                .defaultAdvisors(new MyLoggerAdvisor())
                 .build();
     }
 
     /**
      * AI 基础对话，支持多轮输出记忆
+     *
      * @param message
      * @param chatId
      * @return
@@ -50,12 +60,37 @@ public class LoveApp {
         ChatResponse response = chatClient.prompt()
                 .user(message)
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 1))
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .call()
                 .chatResponse();
         String content = response.getResult().getOutput().getText();
         log.info("content: {}", content);
         return content;
+    }
+
+    // JAVA 21 新特性 语法结构化输出
+    record LoveReport(String title, List<String> suggestions) {
+    }
+
+
+    /**
+     * AI 恋爱报告功能，实战结构化输出
+     *
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public LoveReport doChatWithReport(String message, String chatId) {
+        LoveReport loveReport = chatClient
+                .prompt()
+                .system(SYSTEM_PROMPT + "每次对话后都要生成恋爱结果，标题为{用户名}的恋爱报告，内容为建议列表")
+                .user(message)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .call()
+                .entity(LoveReport.class);
+        log.info("loveReport: {}", loveReport);
+        return loveReport;
     }
 
 
