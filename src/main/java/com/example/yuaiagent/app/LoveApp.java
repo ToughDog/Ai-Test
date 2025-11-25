@@ -6,6 +6,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
@@ -29,6 +30,9 @@ public class LoveApp {
 
     @Resource
     private VectorStore loveAppVectorStore;
+
+    @Resource
+    private Advisor vectorStoreCloudAdvisor;
 
 
     /**
@@ -115,6 +119,29 @@ public class LoveApp {
                 .advisors(new MyLoggerAdvisor())
                 // 添加 RAG Advisor
                 .advisors(QuestionAnswerAdvisor.builder(loveAppVectorStore).build())
+                .call()
+                .chatResponse();
+        String content = response.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
+    }
+
+    /**
+     * RAG增强，基于云知识库
+     *
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public String doChatWithCloudRag(String message, String chatId) {
+        ChatResponse response = chatClient.prompt()
+                .user(message)
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                // 开启日志
+                .advisors(new MyLoggerAdvisor())
+                // 添加 RAG
+                .advisors(vectorStoreCloudAdvisor)
                 .call()
                 .chatResponse();
         String content = response.getResult().getOutput().getText();
