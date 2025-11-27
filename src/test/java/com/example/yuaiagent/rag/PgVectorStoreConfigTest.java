@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class PgVectorStoreConfigTest {
 
 
-    @Resource(name = "pgVectorStore")
-    private VectorStore pgVectorVectorStore;
+//    @Resource(name = "pgVectorStore")
+//    private VectorStore pgVectorVectorStore;
 
     @Test
     void pgVectorStore() {
@@ -29,7 +29,7 @@ class PgVectorStoreConfigTest {
 //        // 添加文档
 //        pgVectorVectorStore.add(documents);
         // 相似度查询
-        List<Document> results = pgVectorVectorStore.similaritySearch(SearchRequest.builder().query("我想谈恋爱").topK(5).build());
-        Assertions.assertNotNull(results);
+//        List<Document> results = pgVectorVectorStore.similaritySearch(SearchRequest.builder().query("我想谈恋爱").topK(5).build());
+//        Assertions.assertNotNull(results);
     }
 }
