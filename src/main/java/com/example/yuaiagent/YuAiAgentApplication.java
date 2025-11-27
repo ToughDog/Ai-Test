@@ -1,5 +1,6 @@
 package com.example.yuaiagent;
 
+import com.example.yuaiagent.rag.PgVectorStoreConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

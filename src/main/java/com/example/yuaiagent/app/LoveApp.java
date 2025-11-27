@@ -34,6 +34,9 @@ public class LoveApp {
     @Resource
     private Advisor vectorStoreCloudAdvisor;
 
+    @Resource
+    private VectorStore pgVectorStore;
+
 
     /**
      * 初始化 app
@@ -146,6 +149,29 @@ public class LoveApp {
                 .chatResponse();
         String content = response.getResult().getOutput().getText();
         log.info("content: {}", content);
+        return content;
+    }
+
+    /**
+     * RAG问答，基于 PostgreSQL 的文档检索
+     *
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public String doChatWithPg(String message, String chatId) {
+        ChatResponse response = chatClient.prompt()
+                .user(message)
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                // 开启日志
+                .advisors(new MyLoggerAdvisor())
+                // 添加 RAG Advisor
+                .advisors(QuestionAnswerAdvisor.builder(pgVectorStore).build())
+                .call()
+                .chatResponse();
+        String content = response.getResult().getOutput().getText();
+        log.info("返回结果是: {}", content);
         return content;
     }
 
