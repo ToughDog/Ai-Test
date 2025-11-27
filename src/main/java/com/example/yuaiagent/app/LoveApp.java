@@ -12,6 +12,7 @@ import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvi
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +35,9 @@ public class LoveApp {
 
     @Resource
     private Advisor vectorStoreCloudAdvisor;
+
+    @Resource
+    private ToolCallback[] allTools;
 
 //    @Resource
 //    private VectorStore pgVectorStore;
@@ -190,8 +194,7 @@ public class LoveApp {
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 // 开启日志
                 .advisors(new MyLoggerAdvisor())
-                // 添加工具
-                .tools(new MailSendTool())
+                .toolCallbacks(allTools)
                 .call()
                 .chatResponse();
         String content = response.getResult().getOutput().getText();
