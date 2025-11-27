@@ -2,6 +2,7 @@ package com.example.yuaiagent.app;
 
 import com.example.yuaiagent.advisor.MyLoggerAdvisor;
 import com.example.yuaiagent.chatMemory.FileBasedChatMemory;
+import com.example.yuaiagent.tool.MailSendTool;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -34,8 +35,8 @@ public class LoveApp {
     @Resource
     private Advisor vectorStoreCloudAdvisor;
 
-    @Resource
-    private VectorStore pgVectorStore;
+//    @Resource
+//    private VectorStore pgVectorStore;
 
 
     /**
@@ -167,7 +168,7 @@ public class LoveApp {
                 // 开启日志
                 .advisors(new MyLoggerAdvisor())
                 // 添加 RAG Advisor
-                .advisors(QuestionAnswerAdvisor.builder(pgVectorStore).build())
+//                .advisors(QuestionAnswerAdvisor.builder(pgVectorStore).build())
                 .call()
                 .chatResponse();
         String content = response.getResult().getOutput().getText();
@@ -175,5 +176,27 @@ public class LoveApp {
         return content;
     }
 
+    /**
+     * 工具使用对话
+     *
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public String doChatWithTools(String message, String chatId) {
+        ChatResponse response = chatClient.prompt()
+                .user(message)
+                .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                // 开启日志
+                .advisors(new MyLoggerAdvisor())
+                // 添加工具
+                .tools(new MailSendTool())
+                .call()
+                .chatResponse();
+        String content = response.getResult().getOutput().getText();
+        log.info("返回结果是: {}", content);
+        return content;
+    }
 
 }
