@@ -134,6 +134,12 @@
             <version>1.1.0-M4</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-starter-mcp-client -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
+            <version>1.1.0-M4</version>
+        </dependency>
 
 
 
