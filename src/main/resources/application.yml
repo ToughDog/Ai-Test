@@ -3,13 +3,13 @@ spring:
     name: yu-ai-agent
   profiles:
     active: local
-  ai:
-    mcp:
-      client:
-#        sse:
-#          server-url:  http://localhost:8127/
-        stdio:
-          servers-configuration: classpath:mcp-servers.json
+#  ai:
+#    mcp:
+#      client:
+##        sse:
+##          server-url:  http://localhost:8127/
+#        stdio:
+#          servers-configuration: classpath:mcp-servers.json
 server:
   port: 8123
   servlet:
