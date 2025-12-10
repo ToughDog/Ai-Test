@@ -44,12 +44,12 @@ public class MyLoggerAdvisor implements CallAdvisor, StreamAdvisor {
     }
 
     protected void logRequest(ChatClientRequest request) {
-        log.info("ChatClientRequest.prompt: {}", request.prompt());
+//        log.info("ChatClientRequest.prompt: {}", request.prompt());
         log.info("ChatClientRequest.context: {}", request.context());
     }
 
     protected void logResponse(ChatClientResponse chatClientResponse) {
-        log.info("ChatClientResponse.chatResponse: {}", chatClientResponse.chatResponse());
+//        log.info("ChatClientResponse.chatResponse: {}", chatClientResponse.chatResponse());
         // ChatClientResponse.context:{chat_memory_retrieve_size=10, chat_memory_conversation_id=3de5895b-f5fa-4000-aba4-f83b4dbda4cf}
         // 可以用于 Advisor 之间传递变量
         log.info("ChatClientResponse.context: {}", chatClientResponse.context());
